@@ -9,14 +9,14 @@ import * as fs from "fs";
 // }
 
 
-const storage = multer.diskStorage({
-    destination: (req: any, file, cb) => {
-        cb(null, path.join(__dirname, "../public"));
-    },
-    filename: (req, file, cb) => {
-        cb(null, Date.now() + "_" + file.originalname);
-    },
-});
+// const storage = multer.diskStorage({
+//     destination: (req: any, file, cb) => {
+//         cb(null, path.join(__dirname, "../public"));
+//     },
+//     filename: (req, file, cb) => {
+//         cb(null, Date.now() + "_" + file.originalname);
+//     },
+// });
 
 const fileFIlter = (req: any, file: any, cb: any) => {
     if (
@@ -36,7 +36,7 @@ const fileFIlter = (req: any, file: any, cb: any) => {
         cb(null, false);
     }
 };
-
+const storage = multer.memoryStorage();
 const upload = multer ({
     storage:storage,
     limits:{
