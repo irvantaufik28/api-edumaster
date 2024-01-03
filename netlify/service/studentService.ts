@@ -262,112 +262,119 @@ class StudentService {
             throw new ResponseError(400, e.toString())
         }
 
-        const student = await prismaClient.student.update({
-            where: {
-                id: id
-            },
-            data: {
-                first_name: request.first_name,
-                middle_name: request.middle_name,
-                last_name: request.last_name,
-                birth_date: request.birth_date,
-                birth_place: request.birth_place,
-                birth_certificate_no: request.birth_certificate_no,
-                family_identity_no: request.family_identity_no,
-                origin_academy: request.origin_academy,
-                religion: request.religion,
-                gender: request.gender,
-                status: request.status,
-                register_year: request.register_year,
-                foto_url: request.foto_url
-            },
-            select: {
-                id: true,
-                nis: true
-            }
-        })
-
-
-        const parentsUpdateDataIds = request.student_parents.filter((o: any) => o.id).map((o: any) => o.id)
-        const existStudentParents = await prismaClient.studentParent.findMany({
-            where: {
-                student_id: id,
-                id: {
-                    notIn: parentsUpdateDataIds
-                }
-            },
-            select: {
-                id: true
-            },
-
-        })
-
-        const deleteParentIds = existStudentParents.filter((o: any) => o.id).map((o: any) => o.id)
-
-        if (existStudentParents.length > 0) {
-            await prismaClient.studentParent.deleteMany({
+        let result: any
+        await prismaClient.$transaction(async (tx) => {
+            const student = await tx.student.update({
                 where: {
-                    id: {
-                        in: deleteParentIds,
-                    },
+                    id: id
                 },
-            });
-        }
+                data: {
+                    first_name: request.first_name,
+                    middle_name: request.middle_name,
+                    last_name: request.last_name,
+                    birth_date: request.birth_date,
+                    birth_place: request.birth_place,
+                    birth_certificate_no: request.birth_certificate_no,
+                    family_identity_no: request.family_identity_no,
+                    origin_academy: request.origin_academy,
+                    religion: request.religion,
+                    gender: request.gender,
+                    status: request.status,
+                    register_year: request.register_year,
+                    foto_url: request.foto_url
+                },
+                select: {
+                    id: true,
+                    nis: true
+                }
+            })
 
-        for (const data of request.student_parents) {
-            if (data.id) {
-                await prismaClient.studentParent.update({
+
+            const parentsUpdateDataIds = request.student_parents.filter((o: any) => o.id).map((o: any) => o.id)
+            const existStudentParents = await tx.studentParent.findMany({
+                where: {
+                    student_id: id,
+                    id: {
+                        notIn: parentsUpdateDataIds
+                    }
+                },
+                select: {
+                    id: true
+                },
+
+            })
+
+            const deleteParentIds = existStudentParents.filter((o: any) => o.id).map((o: any) => o.id)
+
+            if (existStudentParents.length > 0) {
+                await tx.studentParent.deleteMany({
                     where: {
-                        id: data.id
+                        id: {
+                            in: deleteParentIds,
+                        },
                     },
-                    data: {
-                        nik: data.nik,
-                        first_name: data.first_name,
-                        last_name: data.last_name,
-                        relationship: data.relationship,
-                        phone: data.phone,
-                        email: data.email,
-                        job: data.job,
-                        salary: data.salary,
-                        address: data.address,
-                        student_id: student.id
-                    },
-                    select: {
-                        id: true,
-                    }
-                })
-            } else {
-                await prismaClient.studentParent.create({
-                    data: {
-                        nik: data.nik,
-                        first_name: data.first_name,
-                        last_name: data.last_name,
-                        relationship: data.relationship,
-                        phone: data.phone,
-                        email: data.email,
-                        job: data.job,
-                        salary: data.salary,
-                        address: data.address,
-                        student_id: student.id
-                    },
-                })
+                });
             }
-        }
 
-
-        return await prismaClient.student.findFirst({
-            where: {
-                id: student.id,
-            },
-            include: {
-                student_parents: true,
-                student_user: {
-                    include: {
-                        user: true
-                    }
+            for (const data of request.student_parents) {
+                if (data.id) {
+                    await tx.studentParent.update({
+                        where: {
+                            id: data.id
+                        },
+                        data: {
+                            nik: data.nik,
+                            first_name: data.first_name,
+                            last_name: data.last_name,
+                            relationship: data.relationship,
+                            phone: data.phone,
+                            email: data.email,
+                            job: data.job,
+                            salary: data.salary,
+                            address: data.address,
+                            student_id: student.id
+                        },
+                        select: {
+                            id: true,
+                        }
+                    })
+                } else {
+                    await tx.studentParent.create({
+                        data: {
+                            nik: data.nik,
+                            first_name: data.first_name,
+                            last_name: data.last_name,
+                            relationship: data.relationship,
+                            phone: data.phone,
+                            email: data.email,
+                            job: data.job,
+                            salary: data.salary,
+                            address: data.address,
+                            student_id: student.id
+                        },
+                    })
                 }
             }
+
+
+            result = await tx.student.findFirst({
+                where: {
+                    id: student.id,
+                },
+                include: {
+                    student_parents: true,
+                    student_user: {
+                        include: {
+                            user: true
+                        }
+                    }
+                }
+            })
+
         })
+
+        return result
+
     }
 
 
