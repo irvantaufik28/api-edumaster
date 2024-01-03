@@ -56,7 +56,7 @@ interface Schedule {
   updated_at: Date; 
 }
 
-const sortSchedule = (scheduleA: Schedule, scheduleB: Schedule): number => {
+const sortSchedule = (scheduleA: any, scheduleB: any): number => {
   const daysOrder: { [key: string]: number } = {
       "SUNDAY": 0,
       "MONDAY": 1,

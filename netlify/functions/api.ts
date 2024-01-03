@@ -3,7 +3,8 @@ import { logger } from "../application/logging";
 import serverless from "serverless-http";
 import cors from "cors"
 import { prismaClient } from "../application/database";
-
+import  router  from "../routes/api";
+import { errorMiddleware } from "../middleware/error-middleware";
 
 const api = express();
 
@@ -12,18 +13,11 @@ api.use(cors({
   }));
   
 
-const router = Router();
-router.get("/hello", (req, res) => res.send("Hello World!"));
+api.use("/api/v1", router);
+api.use(errorMiddleware);
 
 
-router.get('/list', async (req, res) => {
-    
-    const classmajor = await prismaClient.classMajor.findMany()
 
-    return res.status(200).json({ data: classmajor });
-})
-
-api.use("/api/", router);
 const PORT = process.env.PORT || 4000;
 api.listen(PORT, () => {
     logger.info(`App start at ${process.env.HOST}:${process.env.PORT}`);
