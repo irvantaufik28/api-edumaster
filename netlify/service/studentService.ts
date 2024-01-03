@@ -5,6 +5,8 @@ import { CreateOrUpdateClassroomDto } from "../dto/create-or-update-classroom.dt
 import bcrypt from "bcrypt";
 import { generateDefaultPassword, generateNIS } from "../application/common/common";
 import { createOrUpdateStudentDto } from "../dto/create-or-update-student.dto";
+import { request } from "node:http";
+import { PrismaClient } from "@prisma/client";
 class StudentService {
     constructor() { }
 
@@ -74,24 +76,24 @@ class StudentService {
 
         if (request.not_in_classroom_id) {
             filters.push({
-              student_classrooms: {
-                none: {
-                  classroom_id: parseInt(request.not_in_classroom_id),
+                student_classrooms: {
+                    none: {
+                        classroom_id: parseInt(request.not_in_classroom_id),
+                    },
                 },
-              },
             });
-          }
+        }
 
-          if (request.in_classroom_id) {
+        if (request.in_classroom_id) {
             filters.push({
-              student_classrooms: {
-                some: {
-                  classroom_id: parseInt(request.in_classroom_id),
+                student_classrooms: {
+                    some: {
+                        classroom_id: parseInt(request.in_classroom_id),
+                    },
                 },
-              },
             });
-          }
-          
+        }
+
 
 
         let orders = {
@@ -134,109 +136,119 @@ class StudentService {
 
 
 
+
+
     async create(request: any) {
         try {
             await transformAndValidate(createOrUpdateStudentDto, request);
         } catch (e: any) {
-            throw new ResponseError(400, e.toString())
+            throw new ResponseError(400, e.toString());
         }
 
-        const student = await prismaClient.student.create({
-            data: {
-                nis: generateNIS(new Date().getFullYear()),
-                first_name: request.first_name,
-                middle_name: request.middle_name,
-                last_name: request.last_name,
-                birth_date: request.birth_date,
-                birth_place: request.birth_place,
-                birth_certificate_no: request.birth_certificate_no,
-                family_identity_no: request.family_identity_no,
-                origin_academy: request.origin_academy,
-                religion: request.religion,
-                gender: request.gender,
-                status: "preparation",
-                register_year: request.register_year,
-                foto_url: request.foto_url
-            },
-            select: {
-                id: true,
-                nis: true
-            }
-        })
+        let result: any;
 
-        const student_parents = request.student_parents
-
-        for (const data of student_parents) {
-            await prismaClient.studentParent.create({
+        await prismaClient.$transaction(async (tx) => {
+            const student = await tx.student.create({
                 data: {
-                    nik: data.nik,
-                    first_name: data.first_name,
-                    last_name: data.last_name,
-                    relationship: data.relationship,
-                    phone: data.phone,
-                    email: data.email,
-                    job: data.job,
-                    salary: data.salary,
-                    address: data.address,
-                    student_id: student.id
+                    nis: generateNIS(new Date().getFullYear()),
+                    first_name: request.first_name,
+                    middle_name: request.middle_name,
+                    last_name: request.last_name,
+                    birth_date: request.birth_date,
+                    birth_place: request.birth_place,
+                    birth_certificate_no: request.birth_certificate_no,
+                    family_identity_no: request.family_identity_no,
+                    origin_academy: request.origin_academy,
+                    religion: request.religion,
+                    gender: request.gender,
+                    status: "preparation",
+                    register_year: request.register_year,
+                    foto_url: request.foto_url
                 },
                 select: {
                     id: true,
+                    nis: true
                 }
             })
-        }
+            const student_parents = request.student_parents
 
-        const defaultPassword = generateDefaultPassword(request.birth_date)
-
-        const user_data = {
-            username: student.nis,
-            password: await bcrypt.hash(defaultPassword, 10)
-        }
-
-        const user = await prismaClient.user.create({
-            data: user_data,
-            select: {
-                id: true
+            for (const data of student_parents) {
+                await tx.studentParent.create({
+                    data: {
+                        nik: data.nik,
+                        first_name: data.first_name,
+                        last_name: data.last_name,
+                        relationship: data.relationship,
+                        phone: data.phone,
+                        email: data.email,
+                        job: data.job,
+                        salary: data.salary,
+                        address: data.address,
+                        student_id: student.id
+                    },
+                    select: {
+                        id: true,
+                    }
+                })
             }
-        })
 
-        const student_role = await prismaClient.role.findFirst({
-            where: {
-                name: "student"
-            },
-            select: {
-                id: true
+            const defaultPassword = generateDefaultPassword(request.birth_date)
+
+            const user_data = {
+                username: student.nis,
+                password: await bcrypt.hash(defaultPassword, 10)
             }
-        })
 
-        await prismaClient.userRoles.create({
-            data: {
-                user_id: user.id,
-                role_id: student_role?.id ? student_role?.id : 1
-            }
-        })
+            const user = await tx.user.create({
+                data: user_data,
+                select: {
+                    id: true
+                }
+            })
 
-        await prismaClient.studentUser.create({
-            data: {
-                user_id: user.id,
-                student_id: student.id
-            }
-        })
+            const student_role = await tx.role.findFirst({
+                where: {
+                    name: "student"
+                },
+                select: {
+                    id: true
+                }
+            })
 
-        return await prismaClient.student.findFirst({
-            where: {
-                id: student.id,
-            },
-            include: {
-                student_parents: true,
-                student_user: {
-                    include: {
-                        user: true
+            await tx.userRoles.create({
+                data: {
+                    user_id: user.id,
+                    role_id: student_role?.id ? student_role?.id : 1
+                }
+            })
+
+            await tx.studentUser.create({
+                data: {
+                    user_id: user.id,
+                    student_id: student.id
+                }
+            })
+
+            result = await tx.student.findFirst({
+                where: {
+                    id: student.id,
+                },
+                include: {
+                    student_parents: true,
+                    student_user: {
+                        include: {
+                            user: true
+                        }
                     }
                 }
-            }
+            })
         })
+
+        return result
+
     }
+
+
 
 
     async update(request: any, id: string) {
