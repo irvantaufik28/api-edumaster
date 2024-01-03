@@ -7,11 +7,13 @@ import  router  from "../routes/api";
 import { errorMiddleware } from "../middleware/error-middleware";
 
 const api = express();
+api.use(express.json());
 
 api.use(cors({
     origin: "*",
   }));
   
+
 
 api.use("/api/v1", router);
 api.use(errorMiddleware);

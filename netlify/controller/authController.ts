@@ -6,6 +6,7 @@ import { generateAccessToken } from '../application/common/common';
 
 const login = async (req: any, res: Response, next: NextFunction): Promise<any> => {
     try {
+        console.log(req.body.username)
         const user = await prismaClient.user.findFirst({
             where: {
                 username: req.body.username
