@@ -7,140 +7,144 @@ import {
   generateStaffUsername,
 } from "../application/common/common";
 import { CreateOrUpdateStaffDto } from "../dto/create-or-update-staffDto";
-import { skip } from "node:test";
 
 class StaffService {
   async get(request: any) {
-    const page = request.page ?? 1;
-    const size = request.size ?? 10;
-    const skip = (parseInt(page) - 1) * parseInt(size);
-    const filters: any = [];
+    let result: any
+    await prismaClient.$transaction(async (tx) => {
+      const page = request.page ?? 1;
+      const size = request.size ?? 10;
+      const skip = (parseInt(page) - 1) * parseInt(size);
+      const filters: any = [];
 
-    if (request.nik) {
-      filters.push({
-        nik: {
-          equals: request.nik,
-        },
-      });
-    }
-    if (request.first_name) {
-      filters.push({
-        first_name: {
-          contains: request.first_name,
-          mode: "insensitive",
-        },
-      });
-    }
-    if (request.middle_name) {
-      filters.push({
-        middle_name: {
-          contains: request.middle_name,
-          mode: "insensitive",
-        },
-      });
-    }
-    if (request.last_name) {
-      filters.push({
-        last_name: {
-          contains: request.last_name,
-          mode: "insensitive",
-        },
-      });
-    }
-    if (request.status) {
-      filters.push({
-        status: {
-          equals: request.status,
-        },
-      });
-    }
-    if (request.gender) {
-      filters.push({
-        status: {
-          gender: request.gender,
-        },
-      });
-    }
-    let include_course = false;
-    if (request.role_id) {
-      filters.push({
-        staff_user: {
-          some: {
-            user: {
-              user_roles: {
-                some: {
-                  role_id: parseInt(request.role_id),
-                },
-              },
-            },
+      if (request.nik) {
+        filters.push({
+          nik: {
+            equals: request.nik,
           },
-        },
-      });
-      include_course = true;
-    }
-
-    if (request.course_id) {
-      filters.push({
-        teacher_course: {
-          some: {
-            courses: {
-              id: parseInt(request.course_id),
-            },
+        });
+      }
+      if (request.first_name) {
+        filters.push({
+          first_name: {
+            contains: request.first_name,
+            mode: "insensitive",
           },
-        },
-      });
-    }
-
-    let orders = {
-      [request.orderBy || "created_at"]: request.sortBy || "desc",
-    };
-
-    const staff = await prismaClient.staff.findMany({
-      orderBy: orders,
-
-      where: {
-        AND: filters,
-      },
-
-      include: {
-        teacher_course: {
-          include: {
-            courses: include_course,
+        });
+      }
+      if (request.middle_name) {
+        filters.push({
+          middle_name: {
+            contains: request.middle_name,
+            mode: "insensitive",
           },
-        },
-        staff_user: {
-          include: {
-            user: {
-              include: {
+        });
+      }
+      if (request.last_name) {
+        filters.push({
+          last_name: {
+            contains: request.last_name,
+            mode: "insensitive",
+          },
+        });
+      }
+      if (request.status) {
+        filters.push({
+          status: {
+            equals: request.status,
+          },
+        });
+      }
+      if (request.gender) {
+        filters.push({
+          status: {
+            gender: request.gender,
+          },
+        });
+      }
+      let include_course = false;
+      if (request.role_id) {
+        filters.push({
+          staff_user: {
+            some: {
+              user: {
                 user_roles: {
-                  include: {
-                    role: true,
+                  some: {
+                    role_id: parseInt(request.role_id),
                   },
                 },
-                user_permision: true,
+              },
+            },
+          },
+        });
+        include_course = true;
+      }
+
+      if (request.course_id) {
+        filters.push({
+          teacher_course: {
+            some: {
+              courses: {
+                id: parseInt(request.course_id),
+              },
+            },
+          },
+        });
+      }
+
+      let orders = {
+        [request.orderBy || "created_at"]: request.sortBy || "desc",
+      };
+
+      const staff = await tx.staff.findMany({
+        orderBy: orders,
+
+        where: {
+          AND: filters,
+        },
+
+        include: {
+          teacher_course: {
+            include: {
+              courses: include_course,
+            },
+          },
+          staff_user: {
+            include: {
+              user: {
+                include: {
+                  user_roles: {
+                    include: {
+                      role: true,
+                    },
+                  },
+                  user_permision: true,
+                },
               },
             },
           },
         },
-      },
-      take: parseInt(size),
-      skip: skip,
+        take: parseInt(size),
+        skip: skip,
+      });
+
+      const totalItems = await tx.staff.count({
+        where: {
+          AND: filters,
+        },
+      });
+
+      result = {
+        data: staff,
+        paging: {
+          page: page,
+          total_item: totalItems,
+          total_page: Math.ceil(totalItems / parseInt(size)),
+        },
+      };
     });
 
-    const totalItems = await prismaClient.staff.count({
-      where: {
-        AND: filters,
-      },
-    });
-
-    return {
-      data: staff,
-      paging: {
-        page: page,
-        total_item: totalItems,
-        total_page: Math.ceil(totalItems / parseInt(size)),
-      },
-    };
+    return result;
   }
 
   async create(request: any) {
@@ -240,42 +244,47 @@ class StaffService {
       throw new ResponseError(400, e.toString());
     }
 
-    const staff = await prismaClient.staff.findUnique({
-      where: {
-        id: id,
-      },
-    });
+    let result: any;
 
-    if (!staff) {
-      throw new ResponseError(404, "staff not found");
-    }
+    await prismaClient.$transaction(async (tx) => {
+      const staff = await tx.staff.findUnique({
+        where: {
+          id: id,
+        },
+      });
 
-    await prismaClient.staff.update({
-      where: {
-        id: id,
-      },
-      data: {
-        nik: request.nik,
-        first_name: request.first_name,
-        middle_name: request.middle_name,
-        last_name: request.last_name,
-        birth_date: request.birth_date,
-        birth_place: request.birth_place,
-        gender: request.gender,
-        foto_url: request.foto_url,
-        religion: request.religion,
-        phone: request.phone,
-        email: request.email,
-        address: request.address,
-        status: request.status,
-      },
-    });
+      if (!staff) {
+        throw new ResponseError(404, "staff not found");
+      }
 
-    return await prismaClient.staff.findFirst({
-      where: {
-        id: staff.id,
-      },
+      await tx.staff.update({
+        where: {
+          id: id,
+        },
+        data: {
+          nik: request.nik,
+          first_name: request.first_name,
+          middle_name: request.middle_name,
+          last_name: request.last_name,
+          birth_date: request.birth_date,
+          birth_place: request.birth_place,
+          gender: request.gender,
+          foto_url: request.foto_url,
+          religion: request.religion,
+          phone: request.phone,
+          email: request.email,
+          address: request.address,
+          status: request.status,
+        },
+      });
+
+      result = await tx.staff.findFirst({
+        where: {
+          id: staff.id,
+        },
+      });
     });
+    return result;
   }
 }
 
