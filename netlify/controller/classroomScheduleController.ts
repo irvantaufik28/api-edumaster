@@ -36,10 +36,10 @@ const get = async (req: any, res: Response, next: NextFunction): Promise<any> =>
             include: {
                 teacher_course: {
                     include: {
-                        staff: true,
-                        courses: true
+                        staff: true
                     }
-                }
+                },
+                courses: true
             }
         })
 
