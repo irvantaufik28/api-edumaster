@@ -1,11 +1,32 @@
-import express, { Router } from "express";
+import express from "express";
 import { logger } from "../application/logging";
 import serverless from "serverless-http";
 import cors from "cors"
-import { prismaClient } from "../application/database";
 import router from "../routes/api";
 import { errorMiddleware } from "../middleware/error-middleware";
-import bodyParser from "body-parser";
+import { createClient } from 'redis';
+
+const REDIS_PORT: number = parseInt(process.env.REDIS_PORT ?? '6379', 10);
+const redisClient = createClient({
+  socket: {
+    host: "localhost",
+    port: REDIS_PORT
+  }
+});
+
+
+
+(async () => {
+  redisClient.on('error', (err) => {
+    console.log('Redis Client Error', err);
+  });
+  redisClient.on('ready', () => console.log('Redis is ready'));
+
+  await redisClient.connect();
+
+  await redisClient.ping();
+})();
+
 
 const api = express();
 

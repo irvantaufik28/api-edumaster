@@ -31,9 +31,6 @@ class ClassMajorService {
             where: {
                 AND: filters
             },
-            include: {
-                classrooms: true
-            },
             take: parseInt(size),
             skip: skip,
         })

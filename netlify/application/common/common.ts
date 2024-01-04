@@ -70,7 +70,7 @@ const sortSchedule = (scheduleA: any, scheduleB: any): number => {
   const dayOrderA = daysOrder[scheduleA.day_name];
   const dayOrderB = daysOrder[scheduleB.day_name];
 
-  if (dayOrderA !== undefined && dayOrderB !== undefined) {
+  if (dayOrderA !== undefined || dayOrderA !== null && dayOrderB !== undefined || dayOrderB !== null) {
       if (dayOrderA !== dayOrderB) {
           return dayOrderA - dayOrderB;
       }

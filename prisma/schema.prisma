@@ -5,16 +5,16 @@ generator client {
   provider = "prisma-client-js"
 }
 
-// datasource db {
-//   provider = "postgresql"
-//   url      = env("DATABASE_URL")
-// }
-
 datasource db {
   provider = "postgresql"
-  url = env("POSTGRES_PRISMA_URL") // uses connection pooling
-  directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
+  url      = env("DATABASE_URL")
 }
+
+// datasource db {
+//   provider = "postgresql"
+//   url = env("POSTGRES_PRISMA_URL") // uses connection pooling
+//   directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
+// }
 
 model User {
   id             String           @id @default(uuid()) @db.Uuid
@@ -129,29 +129,47 @@ model TeacherCourse {
 }
 
 model ClassroomSchedule {
-  id                Int           @id @default(autoincrement())
-  classroom         Classroom     @relation(fields: [classroom_id], references: [id])
-  classroom_id      Int
-  day_name          String?
-  start_time        String?
-  end_time          String?
-  teacher_course    TeacherCourse? @relation(fields: [teacher_course_id], references: [id])
-  teacher_course_id Int?
-  type              String?
-  semseter          String?
-  created_at        DateTime      @default(now())
-  updated_at        DateTime      @updatedAt
+  id                      Int                  @id @default(autoincrement())
+  classroom               Classroom?           @relation(fields: [classroom_id], references: [id])
+  classroom_id            Int?
+  day_name                String?
+  start_time              String?
+  end_time                String?
+  teacher_course          TeacherCourse?       @relation(fields: [teacher_course_id], references: [id])
+  teacher_course_id       Int?
+  courses                 Course?              @relation(fields: [course_id], references: [id])
+  course_id               Int?
+  structure_curriculum    StructureCurriculum? @relation(fields: [structure_curriculum_id], references: [id])
+  structure_curriculum_id Int?
+  created_at              DateTime             @default(now())
+  updated_at              DateTime             @updatedAt
 
   @@map("classroom_schedule")
 }
 
+model StructureCurriculum {
+  id                 Int                 @id @default(autoincrement())
+  name               String
+  level              String
+  semester           String
+  year_group         String
+  created_at         DateTime            @default(now())
+  updated_at         DateTime            @updatedAt
+  classroom_schedule ClassroomSchedule[]
+
+  @@map("structure_curriculum")
+}
+
 model Course {
-  id             Int             @id @default(autoincrement())
-  name           String          @db.VarChar(100)
-  level          String
-  teacher_course TeacherCourse[]
-  created_at     DateTime        @default(now())
-  updated_at     DateTime        @updatedAt
+  id                 Int                 @id @default(autoincrement())
+  name               String              @db.VarChar(100)
+  level              String
+  type               String?
+  semester           String?
+  teacher_course     TeacherCourse[]
+  created_at         DateTime            @default(now())
+  updated_at         DateTime            @updatedAt
+  classroom_schedule ClassroomSchedule[]
 
   @@map("course")
 }

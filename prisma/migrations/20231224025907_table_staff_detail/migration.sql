@@ -88,44 +88,6 @@ CREATE TABLE "staff" (
 );
 
 -- CreateTable
-CREATE TABLE "teacher_course" (
-    "id" SERIAL NOT NULL,
-    "staff_id" UUID NOT NULL,
-    "course_id" INTEGER NOT NULL,
-    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "teacher_course_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "classroom_schedule" (
-    "id" SERIAL NOT NULL,
-    "classroom_id" INTEGER NOT NULL,
-    "day_name" TEXT,
-    "start_time" TEXT,
-    "end_time" TEXT,
-    "teacher_course_id" INTEGER,
-    "type" TEXT,
-    "semseter" TEXT,
-    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "classroom_schedule_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "course" (
-    "id" SERIAL NOT NULL,
-    "name" VARCHAR(100) NOT NULL,
-    "level" TEXT NOT NULL,
-    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "course_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
 CREATE TABLE "staff_user" (
     "staff_id" UUID NOT NULL,
     "user_id" UUID NOT NULL,
@@ -209,18 +171,6 @@ ALTER TABLE "user_permission" ADD CONSTRAINT "user_permission_user_id_fkey" FORE
 
 -- AddForeignKey
 ALTER TABLE "user_permission" ADD CONSTRAINT "user_permission_permission_id_fkey" FOREIGN KEY ("permission_id") REFERENCES "permission"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "teacher_course" ADD CONSTRAINT "teacher_course_staff_id_fkey" FOREIGN KEY ("staff_id") REFERENCES "staff"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "teacher_course" ADD CONSTRAINT "teacher_course_course_id_fkey" FOREIGN KEY ("course_id") REFERENCES "course"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "classroom_schedule" ADD CONSTRAINT "classroom_schedule_classroom_id_fkey" FOREIGN KEY ("classroom_id") REFERENCES "classroom"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "classroom_schedule" ADD CONSTRAINT "classroom_schedule_teacher_course_id_fkey" FOREIGN KEY ("teacher_course_id") REFERENCES "teacher_course"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "staff_user" ADD CONSTRAINT "staff_user_staff_id_fkey" FOREIGN KEY ("staff_id") REFERENCES "staff"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
