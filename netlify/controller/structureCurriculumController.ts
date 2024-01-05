@@ -11,6 +11,9 @@ const get = async (req: any, res: Response, next: NextFunction): Promise<any> =>
             page: req.query.page,
             size: req.query.size,
             name: req.query.name,
+            year_group: req.query.year_group,
+            level: req.query.level,
+            semester: req.query.semester,
             orderBy: req.query.orderBy,
             sortBy: req.query.sortBy
         }
@@ -29,8 +32,35 @@ const get = async (req: any, res: Response, next: NextFunction): Promise<any> =>
             })
         }
 
+        if (request.year_group) {
+            filters.push({
+                type: {
+                    contains: request.year_group,
+                }
+            })
+        }
+
+        if (request.semester) {
+            filters.push({
+                semester: {
+                    contains: request.semester,
+                }
+            })
+        }
+
+        if (request.level) {
+            filters.push({
+                level: {
+                    contains: request.level,
+                }
+            })
+        }
+        let orders = {
+            [request.orderBy || "created_at"]: request.sortBy || "desc",
+        };
 
         const structureCurriculum = await prismaClient.structureCurriculum.findMany({
+           orderBy: orders,
             where: {
                 AND: filters
             },

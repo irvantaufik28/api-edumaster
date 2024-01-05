@@ -36,11 +36,13 @@ const get = async (req: any, res: Response, next: NextFunction): Promise<any> =>
             include: {
                 teacher_course: {
                     include: {
-                        staff: true
-                    }
+                        staff: true,
+
+                    },
                 },
                 courses: true
-            }
+            },
+
         })
 
         const result = classroomSchedule.sort(sortSchedule);
@@ -70,7 +72,7 @@ const getTeacherSchedule = async (req: any, res: Response, next: NextFunction): 
         const skip = (parseInt(page) - 1) * parseInt(size);
 
         let orders = {
-            [request.orderBy || 'day_name']: request.sortBy || 'desc',
+            [request.orderBy || 'day_name']: request.sortBy || 'asc',
         };
 
         const teacherSchedule = await prismaClient.classroomSchedule.findMany({
@@ -181,6 +183,7 @@ const createMany = async (req: any, res: Response, next: NextFunction): Promise<
                 data: {
                     classroom_id: parseInt(req.body.classroom_id),
                     teacher_course_id: parseInt(req.body.teacher_course_id),
+                    course_id: parseInt(req.body.course_id),
                     day_name: time.day_name.toUpperCase(),
                     start_time: time.start_time,
                     end_time: time.end_time

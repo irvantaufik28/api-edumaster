@@ -11,6 +11,9 @@ const get = async (req: any, res: Response, next: NextFunction): Promise<any> =>
             page: req.query.page,
             size: req.query.size,
             name: req.query.name,
+            type: req.query.type,
+            level: req.query.level,
+            semester: req.query.semester,
             orderBy: req.query.orderBy,
             sortBy: req.query.sortBy
         }
@@ -28,9 +31,36 @@ const get = async (req: any, res: Response, next: NextFunction): Promise<any> =>
                 }
             })
         }
+        if (request.type) {
+            filters.push({
+                type: {
+                    contains: request.type,
+                }
+            })
+        }
+
+        if (request.semester) {
+            filters.push({
+                semester: {
+                    contains: request.semester,
+                }
+            })
+        }
+
+        if (request.level) {
+            filters.push({
+                level: {
+                    contains: request.level,
+                }
+            })
+        }
+        let orders = {
+            [request.orderBy || "created_at"]: request.sortBy || "desc",
+        };
 
 
         const course = await prismaClient.course.findMany({
+            orderBy: orders,
             where: {
                 AND: filters
             },
@@ -60,8 +90,6 @@ const get = async (req: any, res: Response, next: NextFunction): Promise<any> =>
 };
 
 
-
-
 const getById = async (req: any, res: Response, next: NextFunction): Promise<any> => {
 
     try {
@@ -70,9 +98,11 @@ const getById = async (req: any, res: Response, next: NextFunction): Promise<any
                 id: parseInt(req.params.id)
             },
             include: {
-                teacher_course : {include: {
-                    staff:true
-                }}
+                teacher_course: {
+                    include: {
+                        staff: true
+                    }
+                }
             }
         });
 
