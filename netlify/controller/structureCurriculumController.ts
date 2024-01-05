@@ -108,6 +108,22 @@ const getById = async (req: any, res: Response, next: NextFunction): Promise<any
             }
         });
 
+        structureCurriculum?.classroom_schedule.sort((a, b) => {
+            const nameA = a.courses?.name.toUpperCase(); 
+            const nameB = b.courses?.name.toUpperCase(); 
+          if (nameA && nameB) {
+
+              if (nameA < nameB) {
+                return -1;
+              }
+              if (nameA > nameB) {
+                return 1;
+              }
+            
+          }
+            return 0; 
+          });
+
 
         if (!structureCurriculum) {
             throw new ResponseError(404, "structure curriculum not found")

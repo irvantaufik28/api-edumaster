@@ -239,12 +239,16 @@ const createFromStructureCurriCulum = async (req: any, res: Response, next: Next
             }
 
             for (const schedule of classroomSchedules) {
-                await tx.classroomSchedule.create({
-                    data: {
-                        classroom_id: request.classroom_id,
-                        course_id: schedule.course_id
-                    }
-                })
+                const meetPerWeek = schedule.meet_per_week || 1
+
+                for (let i = 0; i < meetPerWeek; i++) {
+                    await tx.classroomSchedule.create({
+                        data: {
+                            classroom_id: request.classroom_id,
+                            course_id: schedule.course_id
+                        }
+                    });
+                }
             }
 
         })
