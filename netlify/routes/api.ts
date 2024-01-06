@@ -88,8 +88,9 @@ router.get('/classroom-schedule/:id', authorized.allowedRoles(["administrator", 
 router.post('/classroom-schedule', authorized.allowedRoles(["administrator", "manager", "staff_tu"]), classroomScheduleController.create)
 router.post('/classroom-schedule/create-many', authorized.allowedRoles(["administrator", "manager", "staff_tu"]), classroomScheduleController.createMany)
 router.post('/classroom-schedule/structure-curriculum', authorized.allowedRoles(["administrator", "manager", "staff_tu"]), classroomScheduleController.createFromStructureCurriCulum)
+router.post('/classroom-schedule/structure-curriculum-template', authorized.allowedRoles(["administrator", "manager", "staff_tu"]), classroomScheduleController.createScheduleStructureCurriCulum)
 router.put('/classroom-schedule/:id', authorized.allowedRoles(["administrator", "manager", "staff_tu"]), classroomScheduleController.update)
-router.delete('/classroom/-schedule/:id', authorized.allowedRoles(["administrator", "manager", "staff_tu"]), classroomScheduleController.deleted)
+router.delete('/classroom-schedule/:id', authorized.allowedRoles(["administrator", "manager", "staff_tu"]), classroomScheduleController.deleted)
 
 // structure curriculum route 
 router.get('/structure-curriculum', authorized.allowedRoles(["administrator", "manager", "staff_tu"]), structureCurriculumController.get)

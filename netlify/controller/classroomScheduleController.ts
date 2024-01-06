@@ -262,6 +262,54 @@ const createFromStructureCurriCulum = async (req: any, res: Response, next: Next
 
 }
 
+const createScheduleStructureCurriCulum = async (req: any, res: Response, next: NextFunction): Promise<any> => {
+    const request = req.body.timeTables
+    try {
+
+        await prismaClient.$transaction(async (tx) => {
+            const timeTables = request
+            for (const data of timeTables) {
+
+                const course = await tx.course.findUnique({
+                    where: {
+                        id: data.course_id
+                    }
+                })
+
+                if (!course) {
+                    throw new ResponseError(404, `course with id ${data.course_id} not found`)
+                }
+
+                const structureCurriculum = await tx.structureCurriculum.findUnique({
+                    where: {
+                        id: data.structure_curriculum_id
+                    },
+
+                })
+
+                if (!structureCurriculum) {
+                    throw new ResponseError(404, `structure curriculum  with id ${data.structure_curriculum_id}not found`)
+                }
+
+                await tx.classroomSchedule.create({
+                    data: {
+                        course_id: data.course_id,
+                        meet_per_week: data.meet_per_week,
+                        structure_curriculum_id: data.structure_curriculum_id
+                    }
+                })
+            }
+        })
+
+
+        return res.status(200).json({ message: "classroom Schedule for curriculum successfuly created" });
+    } catch (error: any) {
+        next(error)
+    }
+
+
+}
+
 const update = async (req: any, res: Response, next: NextFunction): Promise<any> => {
     // try {
     //     await transformAndValidate("", req.body);
@@ -329,6 +377,7 @@ export default {
     getById,
     getTeacherSchedule,
     createFromStructureCurriCulum,
+    createScheduleStructureCurriCulum,
     create,
     createMany,
     update,

@@ -13,6 +13,7 @@ const get = async (req: any, res: Response, next: NextFunction): Promise<any> =>
             name: req.query.name,
             type: req.query.type,
             level: req.query.level,
+            not_in_curriculum: req.query.not_in_curriculum,
             semester: req.query.semester,
             orderBy: req.query.orderBy,
             sortBy: req.query.sortBy
@@ -54,6 +55,17 @@ const get = async (req: any, res: Response, next: NextFunction): Promise<any> =>
                 }
             })
         }
+
+        if (request.not_in_curriculum) {
+            filters.push({
+                classroom_schedule: {
+                    none: {
+                        structure_curriculum_id: parseInt(request.not_in_curriculum)
+                    }
+                }
+            })
+        }
+
         let orders = {
             [request.orderBy || "created_at"]: request.sortBy || "desc",
         };
@@ -62,7 +74,7 @@ const get = async (req: any, res: Response, next: NextFunction): Promise<any> =>
         const course = await prismaClient.course.findMany({
             orderBy: orders,
             where: {
-                AND: filters
+                AND: filters,
             },
             take: parseInt(size),
             skip: skip,
@@ -103,6 +115,7 @@ const getById = async (req: any, res: Response, next: NextFunction): Promise<any
                         staff: true
                     }
                 }
+
             }
         });
 
