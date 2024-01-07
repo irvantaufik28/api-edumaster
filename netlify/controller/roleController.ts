@@ -59,6 +59,36 @@ const get = async (req: any, res: Response, next: NextFunction): Promise<any> =>
         next(error);
     }
 };
+
+
+const getById = async (req: any, res: Response, next: NextFunction): Promise<any> => {
+    try {
+
+        
+        const role = await prismaClient.role.findUnique({
+            where: {
+                id: parseInt(req.params.id)
+            },
+            include: {
+                role_permission: {
+                    include: {
+                        permission: true
+                    }
+                }
+            }
+        })
+
+        if (!role) {
+            throw new ResponseError(404, "Role not found")
+        }
+        
+        
+        return res.status(200).json({data: role});
+    } catch (error) {
+        next(error);
+    }
+};
+
 const create = async (req: any, res: Response, next: NextFunction): Promise<any> => {
     try {
         await transformAndValidate(CreateOrUpdateRoleDto, req.body);
@@ -172,6 +202,7 @@ const deleteUserRole = async (req: any, res: Response, next: NextFunction): Prom
 
 export default {
     get,
+    getById,
     create,
     createUserRole,
     deleteUserRole

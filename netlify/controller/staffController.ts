@@ -43,7 +43,6 @@ const getById = async (req: any, res: Response, next: NextFunction): Promise<any
                     include: {
                         user: {
                             include: {
-                                user_permision: true,
                                 user_roles: {
                                     include: {
                                         role: true

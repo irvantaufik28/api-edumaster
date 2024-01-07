@@ -32,7 +32,7 @@ const authorized = async (authorization: string | undefined) => {
         const user_data = {
             id: payload.id,
             username: payload.username,
-            roles: payload.roles
+            permissions: payload.permissions
         };
 
         return user_data;
@@ -41,23 +41,41 @@ const authorized = async (authorization: string | undefined) => {
     }
 };
 
-const allowedRoles = (allowedRoles: string[]) => async (req: any, res: any, next: any) => {
+const allowedPermission = (allowedPermission: string[]) => async (req: any, res: any, next: any) => {
     const { authorization } = req.headers;
     try {
         const user = await authorized(authorization);
-        if (!user || !allowedRoles.some(role => user.roles.includes(role))) {
-            throw new ResponseError(400, "Unauthorized");
+        if (!user || !allowedPermission.some(permission => user.permissions.includes(permission))) {
+            throw new ResponseError(400, "Unauthorized, you not have permission");
         }
         req.user = user;
         next()
     } catch (error) {
         next(error);
     }
+}
 
-
+const allowedUser =  async (req: any, res: any, next: any) => {
+    const { authorization } = req.headers;
+    try {
+        const user = await authorized(authorization);
+        console.log(user)
+        console.log(user)
+        console.log(user)
+        console.log(user)
+        console.log(user)
+        console.log(user)
+       if (!user) {
+        throw new ResponseError(400, "Unauthorized")
+       }
+        req.user = user;
+        next()
+    } catch (error) {
+        next(error);
+    }
 }
 
 
 
 
-export default { allowedRoles };
+export default { allowedPermission, allowedUser };

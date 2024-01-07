@@ -13,12 +13,16 @@ const login = async (req: any, res: Response, next: NextFunction): Promise<any> 
             include: {
                 user_roles: {
                     include: {
-                        role: true
-                    }
-                },
-                user_permision: {
-                    include: {
-                        permission: true
+                        role: {
+                            include: {
+                                role_permission: {
+                                    include: {
+                                        permission: true
+                                    }
+                                }
+                            }
+                        }
+
                     }
                 },
                 StaffUser: {
@@ -31,7 +35,7 @@ const login = async (req: any, res: Response, next: NextFunction): Promise<any> 
                         student: true
                     }
                 }
-                
+
             }
         })
 
@@ -46,38 +50,43 @@ const login = async (req: any, res: Response, next: NextFunction): Promise<any> 
         }
 
         let user_detail = user.StaffUser?.[0].staff ?? user.StudentUser?.[0].student ?? {};
-        let roles: any = []
-        user?.user_roles.forEach(item => {
-            roles.push(item.role.name)
-        });
+       
+        const roles: string[] = user?.user_roles.map(item => item.role.name) || [];
+        let permissionsData: Set<string> = new Set();
 
-        let permissions: any = []
-        user?.user_permision.forEach(item => {
-            permissions.push(item.permission)
-        })
+        for (const roles of user?.user_roles) {
+            for (const permissions of roles.role.role_permission) {
+                const permissionName = permissions.permission?.name;
+                if (permissionName && !permissionsData.has(permissionName)) {
+                    permissionsData.add(permissionName);
+                }
+            }
+        }
+        const uniquePermissionsArray: string[] = Array.from(permissionsData);
 
         const user_data_token = {
             id: user.id,
             username: user.username,
-            roles : roles,
-            permissions: permissions.length > 0 ? permissions : null ,
-            user_detail : user_detail
+            roles: roles,
+            permissions: uniquePermissionsArray,
+            user_detail: user_detail
         }
 
         const token = generateAccessToken(user_data_token)
 
         const user_data = {
             id: user.id,
-            username : user.username,
+            username: user.username,
             roles: roles,
-            permissions: permissions.length > 0 ? permissions : null ,
+            permissions: uniquePermissionsArray,
             user_detail,
-            token: token
+            token: token,
+
         }
 
         return res.status(200).json({
             data: user_data
-           
+
         });
     } catch (error) {
         next(error);

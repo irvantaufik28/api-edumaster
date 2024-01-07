@@ -11,7 +11,7 @@ import { createOrUpdateStudentDto } from "../dto/create-or-update-student.dto";
 import { request } from "node:http";
 import { PrismaClient } from "@prisma/client";
 class StudentService {
-  constructor() {}
+  constructor() { }
 
   async get(request: any) {
     const page = request.page ?? 1;
@@ -206,12 +206,31 @@ class StudentService {
         },
       });
 
-      await tx.userRoles.create({
-        data: {
-          user_id: user.id,
-          role_id: student_role?.id ? student_role?.id : 1,
-        },
-      });
+      if (!student_role) {
+        const create_studentRole = await tx.role.create({
+          data: {
+            name: "student"
+          }
+        })
+
+        await tx.userRoles.create({
+          data: {
+            user_id: user.id,
+            role_id: create_studentRole.id,
+          },
+        });
+
+      } else {
+
+        await tx.userRoles.create({
+          data: {
+            user_id: user.id,
+            role_id: student_role.id,
+          },
+        });
+      }
+
+
 
       await tx.studentUser.create({
         data: {

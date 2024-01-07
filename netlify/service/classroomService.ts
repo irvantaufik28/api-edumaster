@@ -6,7 +6,7 @@ import { CreateOrUpdateClassroomDto } from "../dto/create-or-update-classroom.dt
 import { MoveStudentClassroomDto } from "../dto/move-student-classroom.dto";
 
 class ClassroomService {
-  constructor() {}
+  constructor() { }
   async create(request: any) {
     try {
       await transformAndValidate(CreateOrUpdateClassroomDto, request);
@@ -88,9 +88,17 @@ class ClassroomService {
           },
         });
       }
-      let orders = {
+      let orders: any = {
         [request.orderBy || "created_at"]: request.sortBy || "desc",
       };
+
+      if (orders['classMajor.name']) {
+        orders = {
+          classMajor: {
+            name: orders['classMajor.name'],
+          },
+        };
+      }
 
       const classrooms = await tx.classroom.findMany({
         orderBy: orders,

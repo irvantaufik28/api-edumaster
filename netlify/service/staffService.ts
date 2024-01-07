@@ -118,7 +118,6 @@ class StaffService {
                       role: true,
                     },
                   },
-                  user_permision: true,
                 },
               },
             },
@@ -223,7 +222,6 @@ class StaffService {
               user: {
                 include: {
                   user_roles: true,
-                  user_permision: true,
                 },
               },
             },
