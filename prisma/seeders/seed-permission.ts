@@ -18,6 +18,7 @@ async function main() {
     'delete_user_role',
     'create_permission',
     'create_role_permission',
+    'delete_role_permission',
     'create_student',
     'update_student',
     'create_student_parent',

@@ -127,6 +127,153 @@ class StaffService {
         skip: skip,
       });
 
+
+
+      const totalItems = await tx.staff.count({
+        where: {
+          AND: filters,
+        },
+      });
+
+      result = {
+        data: staff,
+        paging: {
+          page: page,
+          total_item: totalItems,
+          total_page: Math.ceil(totalItems / parseInt(size)),
+        },
+      };
+    });
+
+    return result;
+  }
+
+
+  async getStaffTeacher(request: any) {
+    let result: any
+    await prismaClient.$transaction(async (tx) => {
+      const page = request.page ?? 1;
+      const size = request.size ?? 10;
+      const skip = (parseInt(page) - 1) * parseInt(size);
+      const filters: any = [];
+
+
+      const teacher_role_id = await tx.role.findUnique({
+        where: {
+          name: "teacher"
+        },
+        select: {
+          id: true
+        }
+      })
+
+      if (request.nik) {
+        filters.push({
+          nik: {
+            equals: request.nik,
+          },
+        });
+      }
+      if (request.first_name) {
+        filters.push({
+          first_name: {
+            contains: request.first_name,
+            mode: "insensitive",
+          },
+        });
+      }
+      if (request.middle_name) {
+        filters.push({
+          middle_name: {
+            contains: request.middle_name,
+            mode: "insensitive",
+          },
+        });
+      }
+      if (request.last_name) {
+        filters.push({
+          last_name: {
+            contains: request.last_name,
+            mode: "insensitive",
+          },
+        });
+      }
+      if (request.status) {
+        filters.push({
+          status: {
+            equals: request.status,
+          },
+        });
+      }
+      if (request.gender) {
+        filters.push({
+          status: {
+            gender: request.gender,
+          },
+        });
+      }
+
+      if (request.course_id) {
+        filters.push({
+          teacher_course: {
+            some: {
+              courses: {
+                id: parseInt(request.course_id),
+              },
+            },
+          },
+        });
+      }
+
+      let orders = {
+        [request.orderBy || "created_at"]: request.sortBy || "desc",
+      };
+      
+
+      const staff = await tx.staff.findMany({
+        orderBy: orders,
+
+        where: {
+          AND: filters,
+          staff_user: {
+            some: {
+              user: {
+                user_roles: {
+                  some: {
+                    role_id: teacher_role_id?.id
+                  }
+                }
+              }
+            }
+          }
+        },
+
+        include: {
+          teacher_course: {
+            include: {
+              courses: true,
+            },
+          },
+          staff_user: {
+            include: {
+              user: {
+                include: {
+                  user_roles: {
+                    include: {
+                      role: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        take: parseInt(size),
+        skip: skip,
+      });
+
+
+
       const totalItems = await tx.staff.count({
         where: {
           AND: filters,

@@ -26,6 +26,29 @@ const get = async (req: any, res: Response, next: NextFunction): Promise<any> =>
         next(error);
     }
 };
+const getTeacher = async (req: any, res: Response, next: NextFunction): Promise<any> => {
+    try {
+        const staffService = new StaffService()
+        const request = {
+            first_name: req.query.first_name,
+            middle_name: req.query.middle_name,
+            last_name: req.query.last_name,
+            gender: req.query.gender,
+            status: req.query.status,
+            nik: req.query.nik,
+            course_id : req.query.course_id,
+            page: req.query.page,
+            size: req.query.size,
+            role_id: req.query.role_id,
+            orderBy: req.query.orderBy,
+            sortBy: req.query.sortBy
+        }
+        const staffs = await staffService.getStaffTeacher(request)
+        return res.status(200).json(staffs);
+    } catch (error) {
+        next(error);
+    }
+};
 
 
 const getById = async (req: any, res: Response, next: NextFunction): Promise<any> => {
@@ -93,6 +116,7 @@ const update = async (req: any, res: Response, next: NextFunction): Promise<any>
 
 export default {
     get,
+    getTeacher,
     getById,
     create,
     update

@@ -55,8 +55,9 @@ router.get('/permission', authorized.allowedUser, permissionController.get)
 router.post('/permission', authorized.allowedPermission(["all_access", "create_permission"]), permissionController.create)
 
 // role permission route
-router.get('/role-permission', authorized.allowedUser, rolePermissionController.getById)
+router.get('/role-permission/:id', authorized.allowedUser, rolePermissionController.getById)
 router.post('/role-permission',authorized.allowedPermission(["all_access", "create_role_permission"]),  rolePermissionController.create)
+router.delete('/role-permission/:id',authorized.allowedPermission(["all_access", "delete_role_permission"]),  rolePermissionController.deleted)
 
 // student route
 router.get('/student', authorized.allowedUser, studentController.get)
@@ -73,6 +74,7 @@ router.delete('/student-parent/:id', authorized.allowedPermission(["all_access",
 
 // staff route
 router.get('/staff',  authorized.allowedUser, staffController.get)
+router.get('/staff/teacher',  authorized.allowedUser, staffController.getTeacher)
 router.get('/staff/:id',  authorized.allowedUser, staffController.getById)
 router.post('/staff', authorized.allowedPermission(["all_access", "create_staff"]), staffController.create)
 router.put('/staff/:id', authorized.allowedPermission(["all_access", "update_staff"]), staffController.update)
