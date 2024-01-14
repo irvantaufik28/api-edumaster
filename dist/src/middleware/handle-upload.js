@@ -38,15 +38,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.upload = exports.uploadCloudinary = void 0;
 const cloudinary_1 = require("cloudinary");
 const multer_1 = __importDefault(require("multer"));
-const path = __importStar(require("path"));
 const fs = __importStar(require("fs"));
-// const dirPath = "./public";
-// if (!fs.existsSync(dirPath)) {
-//     fs.mkdirSync(dirPath);
-// }
+const dirPath = "./dist/public";
+if (!fs.existsSync(dirPath)) {
+    fs.mkdirSync(dirPath, { recursive: true });
+}
 const storage = multer_1.default.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, path.join(__dirname, "../public"));
+        cb(null, dirPath);
     },
     filename: (req, file, cb) => {
         cb(null, Date.now() + "_" + file.originalname);

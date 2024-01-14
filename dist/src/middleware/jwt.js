@@ -66,12 +66,6 @@ const allowedUser = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
     const { authorization } = req.headers;
     try {
         const user = yield authorized(authorization);
-        console.log(user);
-        console.log(user);
-        console.log(user);
-        console.log(user);
-        console.log(user);
-        console.log(user);
         if (!user) {
             throw new response_error_1.ResponseError(400, "Unauthorized");
         }

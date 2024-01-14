@@ -3,15 +3,16 @@ import  multer from "multer";
 import * as path from "path";
 import * as fs from "fs";
 
-// const dirPath = "./public";
-// if (!fs.existsSync(dirPath)) {
-//     fs.mkdirSync(dirPath);
-// }
+
+const dirPath = "./dist/public";
+if (!fs.existsSync(dirPath)) {
+    fs.mkdirSync(dirPath, { recursive: true });
+}
 
 
 const storage = multer.diskStorage({
     destination: (req: any, file, cb) => {
-        cb(null, path.join(__dirname, "../public"));
+        cb(null, dirPath);
     },
     filename: (req, file, cb) => {
         cb(null, Date.now() + "_" + file.originalname);

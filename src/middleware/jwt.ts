@@ -59,12 +59,6 @@ const allowedUser =  async (req: any, res: any, next: any) => {
     const { authorization } = req.headers;
     try {
         const user = await authorized(authorization);
-        console.log(user)
-        console.log(user)
-        console.log(user)
-        console.log(user)
-        console.log(user)
-        console.log(user)
        if (!user) {
         throw new ResponseError(400, "Unauthorized")
        }
