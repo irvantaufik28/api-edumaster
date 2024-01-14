@@ -34,6 +34,7 @@ const create = async (req: any, res: Response, next: NextFunction): Promise<any>
         await prismaClient.$transaction(async (tx) => {
 
             const permissions = req.body.permissions
+            console.log(permissions)
             if (!permissions.length) {
                 throw new ResponseError(400, "please insert permission")
             }

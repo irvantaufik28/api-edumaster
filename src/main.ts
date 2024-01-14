@@ -1,9 +1,8 @@
 import express from "express";
-import { logger } from "../application/logging";
-import serverless from "serverless-http";
+import { logger } from "./application/logging";
 import cors from "cors"
-import router from "../routes/api";
-import { errorMiddleware } from "../middleware/error-middleware";
+import router from "./routes/api";
+import { errorMiddleware } from "./middleware/error-middleware";
 import { createClient } from 'redis';
 
 const REDIS_PORT: number = parseInt(process.env.REDIS_PORT ?? '6379', 10);
@@ -46,4 +45,3 @@ const PORT = process.env.PORT || 4000;
 api.listen(PORT, () => {
   logger.info(`App start at ${process.env.HOST}:${process.env.PORT}`);
 });
-export const handler = serverless(api);
