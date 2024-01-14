@@ -3,12 +3,19 @@
   "version": "1.0.0",
   "main": "main.js",
   "scripts": {
-    "start": "nodemon src/main.ts",
+    "start": "nodemon dist/src/main.js",
+    "dev": "nodemon src/main.ts",
     "ts.check": "tsc --project tsconfig.json",
     "postinstall": "prisma generate",
-    "build": "prisma generate",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build-prisma": "prisma generate",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "rimraf dist && tsc"
   },
+  "pre-commit": [
+    "ts.check",
+    "build",
+    "add-build"
+],
   "prisma": {
     "seed": "ts-node prisma/seeders/seed.ts"
   },
