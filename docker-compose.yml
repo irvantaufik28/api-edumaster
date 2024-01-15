@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  cache:
+    image: redis:latest
+    restart: always
+    ports:
+      - '6378:6379'
+    command: redis-server --save 20 1 --loglevel warning --requirepass defaultpass --port 6378
+    volumes: 
+      - cache:/data
+    networks:
+      - edumaster
+
+  edumaster:
+    image: irvantaufik28/api_edumaster_cms:latest
+    depends_on:
+      - cache
+    environment:
+      POSTGRES_PRISMA_URL: "postgresql://postgres:postgres@192.168.1.5:5432/smart_school?public"
+      PORT: 4000
+      HOST: "0.0.0.0"
+      REDIS_PORT: 6378  
+      REDIS_HOST: "cache"
+      REDIS_PASSWORD: "defaultpass"
+    ports:
+      - '4000:4000'
+    expose:
+      - '4000'
+    networks:
+      - edumaster
+
+networks:
+  edumaster:
+    driver: bridge
+
+volumes:
+  cache:
+    driver: local
