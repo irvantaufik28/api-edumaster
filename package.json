@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "main.js",
   "scripts": {
-    "start": "nodemon dist/src/main.js",
+    "start": "node dist/src/main.js",
     "dev": "nodemon src/main.ts",
     "ts.check": "tsc --project tsconfig.json",
     "postinstall": "prisma generate",
