@@ -28,7 +28,7 @@ const redisClient = (0, redis_1.createClient)({
         host: REDIS_HOST,
         port: REDIS_PORT,
     },
-    password: REDIS_PASSWORD,
+    // password: REDIS_PASSWORD,
 });
 (() => __awaiter(void 0, void 0, void 0, function* () {
     redisClient.on("error", (err) => {
