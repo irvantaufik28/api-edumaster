@@ -10,7 +10,6 @@ import studentParentController from "../controller/studentParentController"
 import staffController from "../controller/staffController"
 import uploadMediaController from "../controller/uploadMediaController";
 import { upload } from '../middleware/handle-upload'
-import authController from "../controller/authController";
 import courseController from "../controller/courseController";
 import teacherCourseController from "../controller/teacherCourseController";
 import classroomScheduleController from "../controller/classroomScheduleController";
@@ -20,7 +19,6 @@ import rolePermissionController from "../controller/rolePermissionController";
 
 const router = express.Router();
 
-router.post('/login', authController.login)
 router.get('/class/major-list', classMajorController.list);
 
 router.get('/user', authorized.allowedPermission(["all_access"]), userController.get);
@@ -28,7 +26,7 @@ router.get('/user/:id', authorized.allowedUser, userController.getById);
 
 // classroom route
 router.get('/classroom', authorized.allowedUser, classroomController.get);
-router.get('/classroom-list', classroomController.clasroomList);
+router.get('/classroom-list',authorized.allowedUser, classroomController.clasroomList);
 router.get('/classroom/:id',authorized.allowedUser, classroomController.getById);
 router.post('/classroom', authorized.allowedPermission(["all_access", "create_classroom"]), classroomController.create);
 router.put('/classroom/:id', authorized.allowedPermission(["all_access", "update_classroom"]), classroomController.update);

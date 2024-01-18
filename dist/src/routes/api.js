@@ -14,7 +14,6 @@ const studentParentController_1 = __importDefault(require("../controller/student
 const staffController_1 = __importDefault(require("../controller/staffController"));
 const uploadMediaController_1 = __importDefault(require("../controller/uploadMediaController"));
 const handle_upload_1 = require("../middleware/handle-upload");
-const authController_1 = __importDefault(require("../controller/authController"));
 const courseController_1 = __importDefault(require("../controller/courseController"));
 const teacherCourseController_1 = __importDefault(require("../controller/teacherCourseController"));
 const classroomScheduleController_1 = __importDefault(require("../controller/classroomScheduleController"));
@@ -22,13 +21,12 @@ const structureCurriculumController_1 = __importDefault(require("../controller/s
 const permissionController_1 = __importDefault(require("../controller/permissionController"));
 const rolePermissionController_1 = __importDefault(require("../controller/rolePermissionController"));
 const router = express_1.default.Router();
-router.post('/login', authController_1.default.login);
 router.get('/class/major-list', classMajorController_1.default.list);
 router.get('/user', jwt_1.default.allowedPermission(["all_access"]), userController_1.default.get);
 router.get('/user/:id', jwt_1.default.allowedUser, userController_1.default.getById);
 // classroom route
 router.get('/classroom', jwt_1.default.allowedUser, classroomController_1.default.get);
-router.get('/classroom-list', classroomController_1.default.clasroomList);
+router.get('/classroom-list', jwt_1.default.allowedUser, classroomController_1.default.clasroomList);
 router.get('/classroom/:id', jwt_1.default.allowedUser, classroomController_1.default.getById);
 router.post('/classroom', jwt_1.default.allowedPermission(["all_access", "create_classroom"]), classroomController_1.default.create);
 router.put('/classroom/:id', jwt_1.default.allowedPermission(["all_access", "update_classroom"]), classroomController_1.default.update);

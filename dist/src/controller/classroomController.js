@@ -39,6 +39,8 @@ const get = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 const create = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const dataUser = req.user;
+    console.log(dataUser);
     try {
         const classroomService = new classroomService_1.default();
         const result = yield classroomService.create(req.body);
