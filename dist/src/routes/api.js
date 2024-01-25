@@ -12,8 +12,6 @@ const roleController_1 = __importDefault(require("../controller/roleController")
 const studentController_1 = __importDefault(require("../controller/studentController"));
 const studentParentController_1 = __importDefault(require("../controller/studentParentController"));
 const staffController_1 = __importDefault(require("../controller/staffController"));
-const uploadMediaController_1 = __importDefault(require("../controller/uploadMediaController"));
-const handle_upload_1 = require("../middleware/handle-upload");
 const courseController_1 = __importDefault(require("../controller/courseController"));
 const teacherCourseController_1 = __importDefault(require("../controller/teacherCourseController"));
 const classroomScheduleController_1 = __importDefault(require("../controller/classroomScheduleController"));
@@ -101,7 +99,5 @@ router.put('/structure-curriculum/:id', jwt_1.default.allowedPermission(["all_ac
 router.delete('/structure-curriculum/:id', jwt_1.default.allowedPermission(["all_access", "manager", "delete_structure_curriculum"]), structureCurriculumController_1.default.deleted);
 //teacher schedule 
 router.get('/teacher-schedule/:teacher_id', jwt_1.default.allowedUser, classroomScheduleController_1.default.getTeacherSchedule);
-//media upload
-router.post('/upload', handle_upload_1.upload.single('file'), jwt_1.default.allowedUser, uploadMediaController_1.default.upload);
 exports.default = router;
 //# sourceMappingURL=api.js.map

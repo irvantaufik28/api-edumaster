@@ -8,8 +8,6 @@ import roleController from "../controller/roleController";
 import studentController from "../controller/studentController";
 import studentParentController from "../controller/studentParentController"
 import staffController from "../controller/staffController"
-import uploadMediaController from "../controller/uploadMediaController";
-import { upload } from '../middleware/handle-upload'
 import courseController from "../controller/courseController";
 import teacherCourseController from "../controller/teacherCourseController";
 import classroomScheduleController from "../controller/classroomScheduleController";
@@ -115,7 +113,5 @@ router.delete('/structure-curriculum/:id', authorized.allowedPermission(["all_ac
 //teacher schedule 
 router.get('/teacher-schedule/:teacher_id', authorized.allowedUser, classroomScheduleController.getTeacherSchedule)
 
-//media upload
-router.post('/upload', upload.single('file'), authorized.allowedUser, uploadMediaController.upload)
 
 export default router;

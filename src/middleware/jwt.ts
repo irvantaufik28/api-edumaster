@@ -26,7 +26,7 @@ const authorized = async (authorization: string | undefined) => {
                 id: payload.id
             },
         })
-        console.log(user);
+     
         if (!user) {
             return null
         }

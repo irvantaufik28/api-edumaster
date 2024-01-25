@@ -34,7 +34,6 @@ const authorized = (authorization) => __awaiter(void 0, void 0, void 0, function
                 id: payload.id
             },
         });
-        console.log(user);
         if (!user) {
             return null;
         }
