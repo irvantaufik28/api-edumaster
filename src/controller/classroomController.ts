@@ -28,6 +28,9 @@ const get = async (req: any, res: Response, next: NextFunction): Promise<any> =>
     }
 };
 const create = async (req: any, res: Response, next: NextFunction): Promise<any> => {
+
+    const dataUser = req.user;
+    console.log(dataUser)
     try {
         const classroomService = new ClassroomService()
         const result = await classroomService.create(req.body);

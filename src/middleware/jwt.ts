@@ -12,8 +12,8 @@ const getToken = (authHeader: string) => {
 
 const authorized = async (authorization: string | undefined) => {
     try {
-
         if (!authorization || typeof authorization !== 'string') {
+          
             return null;
         }
 
@@ -26,6 +26,7 @@ const authorized = async (authorization: string | undefined) => {
                 id: payload.id
             },
         })
+     
         if (!user) {
             return null
         }

@@ -17,7 +17,7 @@ services:
     depends_on:
       - cache
     environment:
-      POSTGRES_PRISMA_URL: "postgresql://postgres:postgres@192.168.1.5:5432/smart_school?public"
+      POSTGRES_PRISMA_URL: "postgresql://postgres:postgres@192.168.1.3:5432/smart_school?public"
       PORT: 4000
       HOST: "0.0.0.0"
       REDIS_PORT: 6378  
