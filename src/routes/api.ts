@@ -19,6 +19,7 @@ const router = express.Router();
 
 router.get('/class/major-list', classMajorController.list);
 
+router.get('/user/profile', authorized.allowedUser, userController.getProfile);
 router.get('/user', authorized.allowedPermission(["all_access"]), userController.get);
 router.get('/user/:id', authorized.allowedUser, userController.getById);
 
