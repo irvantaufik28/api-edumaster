@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
-import { prismaClient } from '../application/database';
-import { ResponseError } from '../error/response-error';
+import { prismaClient } from '../../application/database';
+import { ResponseError } from '../../error/response-error';
 import { transformAndValidate } from 'class-transformer-validator';
-import { CreateOrUpdateClassroomDto } from '../dto/create-or-update-classroom.dto';
-import { CreateOrUpdateStudentParentDto } from '../dto/create-or-update-studentParent.Dto';
+import { CreateOrUpdateClassroomDto } from '../classroom/dto/create-or-update-classroom.dto';
+import { CreateOrUpdateStudentParentDto } from './dto/create-or-update-studentParent.Dto';
 
 const get = async (req: any, res: Response, next: NextFunction): Promise<any> => {
     try {

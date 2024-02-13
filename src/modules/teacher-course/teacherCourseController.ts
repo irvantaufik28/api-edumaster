@@ -1,8 +1,8 @@
 import { Response, NextFunction } from 'express';
-import { prismaClient } from '../application/database';
+import { prismaClient } from '../../application/database';
 import { transformAndValidate } from 'class-transformer-validator';
-import { CreateOrUpdateRoleDto } from '../dto/create-or-update-role.dto';
-import { ResponseError } from '../error/response-error';
+import { CreateOrUpdateRoleDto } from '../role/dto/create-or-update-role.dto';
+import { ResponseError } from '../../error/response-error';
 
 const get = async (req: any, res: Response, next: NextFunction): Promise<any> => {
     try {
@@ -10,11 +10,7 @@ const get = async (req: any, res: Response, next: NextFunction): Promise<any> =>
         const request = {
             page: req.query.page,
             size: req.query.size,
-            name: req.query.name,
-            type: req.query.type,
-            level: req.query.level,
-            not_in_curriculum: req.query.not_in_curriculum,
-            semester: req.query.semester,
+            course_id: req.query.course_id,
             orderBy: req.query.orderBy,
             sortBy: req.query.sortBy
         }
@@ -24,70 +20,36 @@ const get = async (req: any, res: Response, next: NextFunction): Promise<any> =>
         const skip = (parseInt(page) - 1) * parseInt(size);
         const filters: any = [];
 
-        if (request.name) {
+        if (request.course_id) {
             filters.push({
-                name: {
-                    contains: request.name,
-                    mode: 'insensitive'
-                }
-            })
-        }
-        if (request.type) {
-            filters.push({
-                type: {
-                    contains: request.type,
+                course_id: {
+                    equals: parseInt(request.course_id),
+
                 }
             })
         }
 
-        if (request.semester) {
-            filters.push({
-                semester: {
-                    contains: request.semester,
-                }
-            })
-        }
 
-        if (request.level) {
-            filters.push({
-                level: {
-                    contains: request.level,
-                }
-            })
-        }
-
-        if (request.not_in_curriculum) {
-            filters.push({
-                classroom_schedule: {
-                    none: {
-                        structure_curriculum_id: parseInt(request.not_in_curriculum)
-                    }
-                }
-            })
-        }
-
-        let orders = {
-            [request.orderBy || "created_at"]: request.sortBy || "desc",
-        };
-
-
-        const course = await prismaClient.course.findMany({
-            orderBy: orders,
+        const teacherCourse = await prismaClient.teacherCourse.findMany({
             where: {
-                AND: filters,
+                AND: filters
+            },
+            include: {
+                staff: true,
+                courses: true
             },
             take: parseInt(size),
             skip: skip,
         })
 
-        const totalItems = await prismaClient.course.count({
+        const totalItems = await prismaClient.teacherCourse.count({
             where: {
                 AND: filters
             }
         })
 
         const result = {
-            data: course,
+            data: teacherCourse,
             paging: {
                 page: page,
                 total_item: totalItems,
@@ -105,23 +67,20 @@ const get = async (req: any, res: Response, next: NextFunction): Promise<any> =>
 const getById = async (req: any, res: Response, next: NextFunction): Promise<any> => {
 
     try {
-        const course = await prismaClient.course.findUnique({
+        const course = await prismaClient.teacherCourse.findUnique({
             where: {
                 id: parseInt(req.params.id)
             },
             include: {
-                teacher_course: {
-                    include: {
-                        staff: true
-                    }
-                }
-
+                staff: true,
+                courses: true,
+                classroom_schedule: true
             }
         });
 
 
         if (!course) {
-            throw new ResponseError(404, "course not found")
+            throw new ResponseError(404, "teacher Courses course not found")
         }
 
         return res.status(200).json({ data: course });
@@ -130,12 +89,17 @@ const getById = async (req: any, res: Response, next: NextFunction): Promise<any
     }
 };
 
-const list = async (req: any, res: Response, next: NextFunction): Promise<any> => {
+const getByStaffId = async (req: any, res: Response, next: NextFunction): Promise<any> => {
 
     try {
-        const course = await prismaClient.course.findMany();
-
-
+        const course = await prismaClient.teacherCourse.findMany({
+            where: {
+                staff_id: req.params.id
+            },
+            include: {
+                courses: true,
+            }
+        });
 
         return res.status(200).json({ data: course });
     } catch (error: any) {
@@ -152,15 +116,31 @@ const create = async (req: any, res: Response, next: NextFunction): Promise<any>
     // }
 
     try {
-        const result = await prismaClient.course.create({
-            data: req.body,
-            select: {
-                id: true,
-                name: true
+
+        const staff = await prismaClient.staff.findUnique({
+            where: {
+                id: req.body.staff_id
             }
+        })
+
+        if (!staff) {
+            throw new ResponseError(404, "staff not found")
+        }
+
+        const course = await prismaClient.course.findUnique({
+            where: {
+                id: parseInt(req.body.course_id)
+            }
+        })
+
+        if (!course) {
+            throw new ResponseError(404, "course not found")
+        }
+        const result = await prismaClient.teacherCourse.create({
+            data: req.body,
         });
 
-        return res.status(200).json(result);
+        return res.status(200).json({ data: result });
     } catch (error: any) {
         next(error)
     }
@@ -175,25 +155,36 @@ const update = async (req: any, res: Response, next: NextFunction): Promise<any>
 
     try {
 
+
+        const staff = await prismaClient.staff.findUnique({
+            where: {
+                id: req.body.staff_id
+            }
+        })
+
+        if (!staff) {
+            throw new ResponseError(404, "staff not found")
+        }
+
         const course = await prismaClient.course.findUnique({
             where: {
-                id: parseInt(req.params.id)
+                id: parseInt(req.body.course_id)
             }
-        });
+        })
 
 
         if (!course) {
-            throw new ResponseError(404, "course not found")
+            throw new ResponseError(404, "teacher course not found")
         }
 
-        const result = await prismaClient.course.update({
+        await prismaClient.teacherCourse.update({
             where: {
                 id: parseInt(req.params.id)
             },
             data: req.body,
         });
 
-        return res.status(200).json({ message: "course successfuly updated" });
+        return res.status(200).json({ message: "teacher course successfuly updated" });
     } catch (error: any) {
         next(error)
     }
@@ -204,23 +195,23 @@ const update = async (req: any, res: Response, next: NextFunction): Promise<any>
 const deleted = async (req: any, res: Response, next: NextFunction): Promise<any> => {
 
     try {
-        const course = await prismaClient.course.findUnique({
+        const course = await prismaClient.teacherCourse.findUnique({
             where: {
                 id: parseInt(req.params.id)
             }
         });
 
         if (!course) {
-            throw new ResponseError(404, "course not found")
+            throw new ResponseError(404, "teacher course not found")
         }
 
-        await prismaClient.course.delete({
+        await prismaClient.teacherCourse.delete({
             where: {
                 id: parseInt(req.params.id)
             }
         })
 
-        return res.status(200).json({ message: "course successfully deleted" });
+        return res.status(200).json({ message: "teacher course successfully deleted" });
     } catch (error: any) {
         next(error)
     }
@@ -231,7 +222,7 @@ const deleted = async (req: any, res: Response, next: NextFunction): Promise<any
 export default {
     get,
     getById,
-    list,
+    getByStaffId,
     create,
     update,
     deleted

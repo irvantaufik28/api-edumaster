@@ -1,5 +1,5 @@
 import { Response, NextFunction } from 'express';
-import { prismaClient } from '../application/database';
+import { prismaClient } from '../../application/database';
 
 const get = async (req: any, res: Response, next: NextFunction): Promise<any> => {
     try {

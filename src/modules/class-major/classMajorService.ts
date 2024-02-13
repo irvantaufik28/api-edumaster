@@ -1,7 +1,7 @@
 import { transformAndValidate } from "class-transformer-validator";
-import { prismaClient } from "../application/database";
-import { ResponseError } from "../error/response-error";
-import { CreateOrUpdateClassMajorDto } from "../dto/create-or-update-classmajor.dto";
+import { prismaClient } from "../../application/database";
+import { ResponseError } from "../../error/response-error";
+import { CreateOrUpdateClassMajorDto } from "./dto/create-or-update-classmajor.dto";
 
 class ClassMajorService {
 

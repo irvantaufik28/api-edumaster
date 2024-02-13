@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
-import { prismaClient } from '../application/database';
+import { prismaClient } from '../../application/database';
 import { transformAndValidate } from 'class-transformer-validator';
-import { CreateOrUpdateClassMajorDto } from '../dto/create-or-update-classmajor.dto';
-import { ResponseError } from '../error/response-error';
-import ClassMajorService from '../service/classMajorService';
+import { CreateOrUpdateClassMajorDto } from './dto/create-or-update-classmajor.dto';
+import { ResponseError } from '../../error/response-error';
+import ClassMajorService from './classMajorService';
 
 const get = async (req: any, res: Response, next: NextFunction): Promise<any> => {
     try {

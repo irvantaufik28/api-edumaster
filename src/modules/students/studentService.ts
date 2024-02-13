@@ -1,19 +1,19 @@
 import { transformAndValidate } from "class-transformer-validator";
-import { prismaClient } from "../application/database";
-import { ResponseError } from "../error/response-error";
-import { CreateOrUpdateClassroomDto } from "../dto/create-or-update-classroom.dto";
+import { prismaClient } from "../../application/database";
+import { ResponseError } from "../../error/response-error";
 import bcrypt from "bcrypt";
 import {
   generateDefaultPassword,
   generateNIS,
-} from "../application/common/common";
-import { createOrUpdateStudentDto } from "../dto/create-or-update-student.dto";
-import { request } from "node:http";
-import { PrismaClient } from "@prisma/client";
-class StudentService {
-  constructor() { }
+} from "../../application/common/common";
+import { createOrUpdateStudentDto } from "./dto/create-or-update-student.dto";
+import { studentStatus } from "../../utils/const";
+import { StudentPaginationResult } from "./interface/student.interface";
 
-  async get(request: any) {
+class StudentService {
+  constructor() {}
+
+  async get(request: any): Promise<StudentPaginationResult> {
     const page = request.page ?? 1;
     const size = request.size ?? 10;
     const skip = (parseInt(page) - 1) * parseInt(size);
@@ -129,6 +129,37 @@ class StudentService {
     };
   }
 
+  async getById(id: string): Promise<any> {
+    const result = await prismaClient.student.findUnique({
+      where: {
+        id: id,
+      },
+      include: {
+        student_parents: true,
+        student_user: {
+          include: {
+            user: true,
+          },
+        },
+        student_classrooms: {
+          include: {
+            classroom: {
+              include: {
+                classMajor: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!result) {
+      throw new ResponseError(404, "student not found");
+    }
+
+    return result;
+  }
+
   async create(request: any) {
     try {
       await transformAndValidate(createOrUpdateStudentDto, request);
@@ -152,7 +183,7 @@ class StudentService {
           origin_academy: request.origin_academy,
           religion: request.religion,
           gender: request.gender,
-          status: "preparation",
+          status: studentStatus.PREPARATION,
           register_year: request.register_year,
           foto_url: request.foto_url,
         },
@@ -209,9 +240,9 @@ class StudentService {
       if (!student_role) {
         const create_studentRole = await tx.role.create({
           data: {
-            name: "student"
-          }
-        })
+            name: "student",
+          },
+        });
 
         await tx.userRoles.create({
           data: {
@@ -219,9 +250,7 @@ class StudentService {
             role_id: create_studentRole.id,
           },
         });
-
       } else {
-
         await tx.userRoles.create({
           data: {
             user_id: user.id,
@@ -229,8 +258,6 @@ class StudentService {
           },
         });
       }
-
-
 
       await tx.studentUser.create({
         data: {

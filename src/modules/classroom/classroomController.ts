@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
-import { prismaClient } from '../application/database';
-import { ResponseError } from '../error/response-error';
+import { prismaClient } from '../../application/database';
+import { ResponseError } from '../../error/response-error';
 import { transformAndValidate } from 'class-transformer-validator';
-import { CreateOrUpdateClassroomDto } from '../dto/create-or-update-classroom.dto';
-import ClassroomService from '../service/classroomService';
+import { CreateOrUpdateClassroomDto } from './dto/create-or-update-classroom.dto';
+import ClassroomService from './classroomService';
 
 const get = async (req: any, res: Response, next: NextFunction): Promise<any> => {
     try {
@@ -29,8 +29,6 @@ const get = async (req: any, res: Response, next: NextFunction): Promise<any> =>
 };
 const create = async (req: any, res: Response, next: NextFunction): Promise<any> => {
 
-    const dataUser = req.user;
-    console.log(dataUser)
     try {
         const classroomService = new ClassroomService()
         const result = await classroomService.create(req.body);
@@ -83,13 +81,6 @@ const getById = async (req: any, res: Response, next: NextFunction): Promise<any
     }
 }
 const update = async (req: any, res: Response, next: NextFunction): Promise<any> => {
-    try {
-        await transformAndValidate(CreateOrUpdateClassroomDto, req.body, {
-            validator: { skipMissingProperties: true }
-        });
-    } catch (e: any) {
-        return res.status(404).json({ message: e.toString() });
-    }
     try {
         const result = await prismaClient.classroom.findUnique({
             where: {

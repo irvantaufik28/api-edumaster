@@ -1,19 +1,19 @@
 import express from "express";
 
 import authorized from "../middleware/jwt"
-import userController from "../controller/userController";
-import classMajorController from "../controller/classMajorController";
-import classroomController from "../controller/classroomController";
-import roleController from "../controller/roleController";
-import studentController from "../controller/studentController";
-import studentParentController from "../controller/studentParentController"
-import staffController from "../controller/staffController"
-import courseController from "../controller/courseController";
-import teacherCourseController from "../controller/teacherCourseController";
-import classroomScheduleController from "../controller/classroomScheduleController";
-import structureCurriculumController from "../controller/structureCurriculumController";
-import permissionController from "../controller/permissionController";
-import rolePermissionController from "../controller/rolePermissionController";
+import userController from "../modules/user/userController";
+import classMajorController from "../modules/class-major/classMajorController";
+import classroomController from "../modules/classroom/classroomController";
+import roleController from "../modules/role/roleController";
+import studentController from "../modules/students/studentController";
+import studentParentController from "../modules/student-parent/studentParentController"
+import staffController from "../modules/staff/staffController"
+import courseController from "../modules/course/courseController";
+import teacherCourseController from "../modules/teacher-course/teacherCourseController";
+import classroomScheduleController from "../modules/classroom-schedule/classroomScheduleController";
+import structureCurriculumController from "../modules/structure-curriculum/structureCurriculumController";
+import permissionController from "../modules/permission/permissionController";
+import rolePermissionController from "../modules/role-permission/rolePermissionController";
 
 const router = express.Router();
 

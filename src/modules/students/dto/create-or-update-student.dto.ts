@@ -1,6 +1,6 @@
-import { IsArray, IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID, IsUrl, ValidateNested } from "class-validator";
+import { IsArray, IsOptional, IsString, IsUUID, IsUrl, ValidateNested } from "class-validator";
 import "reflect-metadata";
-import { CreateOrUpdateStudentParentDto } from "./create-or-update-studentParent.Dto";
+import { CreateOrUpdateStudentParentDto } from "../../student-parent/dto/create-or-update-studentParent.Dto";
 import { Type } from "class-transformer";
 export class createOrUpdateStudentDto {
     @IsString()

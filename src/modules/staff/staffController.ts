@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
-import { prismaClient } from '../application/database';
-import { ResponseError } from '../error/response-error';
-import StaffService from '../service/staffService';
+import { prismaClient } from '../../application/database';
+import { ResponseError } from '../../error/response-error';
+import StaffService from './staffService';
 
 const get = async (req: any, res: Response, next: NextFunction): Promise<any> => {
     try {

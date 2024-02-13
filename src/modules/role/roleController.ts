@@ -1,9 +1,9 @@
 import { Response, NextFunction } from 'express';
-import { prismaClient } from '../application/database';
+import { prismaClient } from '../../application/database';
 import { transformAndValidate } from 'class-transformer-validator';
-import { CreateOrUpdateRoleDto } from '../dto/create-or-update-role.dto';
-import { ResponseError } from '../error/response-error';
-import { CreateOrDeleteUserRolesDto } from '../dto/create-or-delete-userRolse.dto';
+import { CreateOrUpdateRoleDto } from './dto/create-or-update-role.dto';
+import { ResponseError } from '../../error/response-error';
+import { CreateOrDeleteUserRolesDto } from './dto/create-or-delete-userRolse.dto';
 
 const get = async (req: any, res: Response, next: NextFunction): Promise<any> => {
     try {

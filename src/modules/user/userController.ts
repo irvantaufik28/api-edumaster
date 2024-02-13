@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import { prismaClient } from '../application/database';
-import { ResponseError } from '../error/response-error';
+import { prismaClient } from '../../application/database';
+import { ResponseError } from '../../error/response-error';
 
 const get = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
     try {

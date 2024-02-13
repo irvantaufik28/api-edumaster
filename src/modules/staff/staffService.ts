@@ -1,12 +1,12 @@
 import { transformAndValidate } from "class-transformer-validator";
-import { prismaClient } from "../application/database";
-import { ResponseError } from "../error/response-error";
+import { prismaClient } from "../../application/database";
+import { ResponseError } from "../../error/response-error";
 import bcrypt from "bcrypt";
 import {
   generateDefaultPassword,
   generateStaffUsername,
-} from "../application/common/common";
-import { CreateOrUpdateStaffDto } from "../dto/create-or-update-staffDto";
+} from "../../application/common/common";
+import { CreateOrUpdateStaffDto } from "./dto/create-or-update-staffDto";
 
 class StaffService {
   async get(request: any) {
